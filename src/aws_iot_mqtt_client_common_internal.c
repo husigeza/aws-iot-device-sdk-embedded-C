@@ -271,7 +271,7 @@ IoT_Error_t aws_iot_mqtt_internal_send_packet(AWS_IoT_Client *pClient, size_t le
 
 	FUNC_ENTRY;
 
-	if(NULL == pClient || NULL == pTimer) {
+	if(NULL == pClient) {
 		FUNC_EXIT_RC(NULL_VALUE_ERROR);
 	}
 
@@ -289,7 +289,7 @@ IoT_Error_t aws_iot_mqtt_internal_send_packet(AWS_IoT_Client *pClient, size_t le
 	sentLen = 0;
 	sent = 0;
 
-	while(sent < length && !has_timer_expired(pTimer)) {
+	while(sent < length && (NULL == pTimer || !has_timer_expired(pTimer))) {
 		rc = pClient->networkStack.write(&(pClient->networkStack),
 						 &pClient->clientData.writeBuf[sent],
 						 (length - sent),
@@ -539,7 +539,7 @@ static IoT_Error_t _aws_iot_mqtt_internal_handle_publish(AWS_IoT_Client *pClient
 		FUNC_EXIT_RC(rc);
 	}
 
-	rc = aws_iot_mqtt_internal_send_packet(pClient, len, pTimer);
+	rc = aws_iot_mqtt_internal_send_packet(pClient, len, NULL);
 	if(SUCCESS != rc) {
 		FUNC_EXIT_RC(rc);
 	}
